@@ -22,5 +22,6 @@ print_environment
 for study in $(cat ${path_file_harmonised_listing}); do
     export path_study=${path_baseline_summary_statistics}/${study}
     echo "---> Launch processing job for study: '${path_study}'"
-    #sbatch ${SCRIPT_DIR}/process_study.sh ${study}
+    #sbatch ${SCRIPT_DIR}/process_study.sh ${path_study}
+    ${SCRIPT_DIR}/process_study.sh ${path_study}
 done
