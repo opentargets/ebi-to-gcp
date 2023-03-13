@@ -131,7 +131,7 @@ function check_study_processed {
 # Upload processed study to GCP
 function upload_study_to_gcp {
     log "Uploading study '${study_id}' to GCP location '${study_gcp_path_dst}'"
-    singularity exec docker://google/cloud-sdk:latest gsutil cp -r ${WORKDIR} ${study_gcp_path_dst}
+    singularity exec docker://google/cloud-sdk:latest gsutil -m cp -r ${WORKDIR} ${study_gcp_path_dst}
     if [[ $? -ne 0 ]]; then
         log "ERROR: Failed to upload study '${study_id}' to GCP"
         set_error_status
@@ -143,7 +143,7 @@ function upload_study_to_gcp {
 # Remove study from GCP
 function remove_study_from_gcp {
     log "Removing study '${study_id}' from GCP"
-    singularity exec docker://google/cloud-sdk:latest gsutil rm -r ${study_gcp_path_dst}
+    singularity exec docker://google/cloud-sdk:latest gsutil -m rm -r ${study_gcp_path_dst}
     if [[ $? -ne 0 ]]; then
         log "ERROR: Failed to remove study '${study_id}' from GCP"
         set_error_status
@@ -172,7 +172,7 @@ fi
 # Flag for processing if the study has been updated
 if check_study_processed; then
     # Check if the study has been updated
-    study_gcp_checksum_value=$(gsutil cat ${study_gcp_path_checksum} | awk '{print $1}')
+    study_gcp_checksum_value=$(singularity exec docker://google/cloud-sdk:latest gsutil cat ${study_gcp_path_checksum} | awk '{print $1}')
     if [ "${study_gcp_checksum_value}" != "${study_checksum_value}" ]; then
         log "Study '${study_id}' has been updated since last processing"
         # Set flag to process study
