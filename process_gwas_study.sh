@@ -126,6 +126,18 @@ function check_study_processed {
     fi
 }
 
+# Upload processed study to GCP
+function upload_study_to_gcp {
+    log "Uploading study '${study_id}' to GCP"
+    gsutil cp ${WORKDIR} ${study_gcp_path_dst}
+    if [[ $? -ne 0 ]]; then
+        log "ERROR: Failed to upload study '${study_id}' to GCP"
+        set_error_status
+        return 1
+    fi
+    return 0
+}
+
 
 
 
@@ -169,12 +181,24 @@ fi
 if [[ ${flag_process_study} -eq 0 ]]; then
     log "Processing study '${study_id}'"
     # TODO - Process the study
-    log "XXX ------------------------- STUDY PROCESSING PAYLOAD ---------------------------- XXX"
+    log "XXX ------------------------- [START] STUDY PROCESSING PAYLOAD [START] ---------------------------- XXX"
+    # Touch 10 empty files in WORKDIR
+    for i in {1..10}; do
+        touch ${WORKDIR}/file_${i}.parquet
+    done
+    log "XXX ------------------------- [END]   STUDY PROCESSING PAYLOAD   [END] ---------------------------- XXX"
     if [[ $? -eq 0 ]]; then
         log "Study '${study_id}' processing was SUCCESSFUL"
-        # Set the study status to OK, i.e. no errors and md5sum upload
-        set_study_processed
         # TODO - Upload the study to GCP
+        if upload_study_to_gcp; then
+            log "Study '${study_id}' was uploaded to GCP"
+            # Set the study status to OK, i.e. no errors and md5sum upload
+            set_study_processed
+        else
+            log "ERROR: Study '${study_id}' was NOT uploaded to GCP"
+            set_error_status
+            exit 1
+        fi
     else
         log "ERROR: Study '${study_id}' processing FAILED"
         set_error_status
