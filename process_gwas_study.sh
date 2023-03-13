@@ -168,7 +168,6 @@ if check_error_status; then
     # Set flag to process study
     flag_process_study=0
 fi
-exit 0
 
 # Flag for processing if the study has been updated
 if check_study_processed; then
@@ -189,6 +188,7 @@ else
     # Set flag to process study
     flag_process_study=0
 fi
+exit 0
 
 # Process the study
 if [[ ${flag_process_study} -eq 0 ]]; then
