@@ -12,7 +12,7 @@ path_ops_gcp_service_account="${path_ops_credentials}/gcp-service-account.json"
 # Path baseline for summary statistics
 path_baseline_summary_statistics='/nfs/ftp/public/databases/gwas/summary_statistics'
 # Path baseline for study processing depositions
-gcp_path_baseline='gs://ot-team/mbernal/gwas_summary_stats'
+gcp_path_baseline='gs://open-targets-gwas-summary-stats'
 # Path to deposit the processed studies
 gcp_path_studies=${gcp_path_baseline}/studies
 # Path for study tracking related files, e.g. to find out whether a study has already been processed, needs to be reprocessed or is new
