@@ -2,6 +2,13 @@
 
 # This script will process a single GWAS study.
 
+# Bootstrapping
+#export TMPDIR="$TMPDIR/%J-tmp_dir"
+#mkdir -p $TMPDIR
+export WORKDIR="$TMPDIR/work_dir"
+MKDIR -p $WORKDIR
+#trap "rm -rf $TMPDIR" EXIT
+
 # Environment variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
