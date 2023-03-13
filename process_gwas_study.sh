@@ -15,7 +15,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Operational defaults
 path_ops_baseline="$HOME/ot-ops"
 path_ops_credentials="${path_ops_baseline}/credentials"
-path_ops_gcp_service_account="${path_ops_credentials}/gcp-service-account.json"
+path_ops_gcp_service_account="${path_ops_credentials}/gcp-service-account-gwas-summary-stats.json"
 # Path baseline for summary statistics
 path_baseline_summary_statistics='/nfs/ftp/public/databases/gwas/summary_statistics'
 # Path baseline for study processing depositions
