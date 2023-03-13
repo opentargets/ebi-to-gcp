@@ -165,6 +165,8 @@ function remove_study_from_gcp {
 print_environment
 exit 0
 
+# Activate GCP service account
+activate_gcp_service_account
 
 # By default, we assume that we don't need to process the study
 flag_process_study=1
@@ -209,7 +211,7 @@ if [[ ${flag_process_study} -eq 0 ]]; then
     log "XXX ------------------------- [END]   STUDY PROCESSING PAYLOAD   [END] ---------------------------- XXX"
     if [[ $? -eq 0 ]]; then
         log "Study '${study_id}' processing was SUCCESSFUL"
-        # TODO - Upload the study to GCP
+        # Upload the study to GCP
         if upload_study_to_gcp; then
             log "Study '${study_id}' was uploaded to GCP"
             # Set the study status to OK, i.e. no errors and md5sum upload
