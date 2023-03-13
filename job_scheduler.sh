@@ -19,9 +19,9 @@ function print_environment {
 
 # Main
 print_environment
-for study in $(cat ${path_file_harmonised_listing}); do
+for study in $(cat ${path_file_harmonised_listing} | head -n 1); do
     export path_study=${path_baseline_summary_statistics}/${study}
     echo "---> Launch processing job for study: '${path_study}'"
-    #sbatch ${SCRIPT_DIR}/process_study.sh ${path_study}
-    ${SCRIPT_DIR}/process_study.sh ${path_study}
+    #sbatch ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
+    ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
 done
