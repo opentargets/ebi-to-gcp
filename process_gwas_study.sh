@@ -78,12 +78,6 @@ function print_environment {
     echo "  study_gcp_path_status_error=${study_gcp_path_status_error}"
 }
 
-# Activate GCP service account
-function activate_gcp_service_account {
-    log "Activating GCP service account"
-    singularity exec docker://google/cloud-sdk:latest gcloud auth activate-service-account --key-file=${path_ops_gcp_service_account}
-}
-
 # Set error status for a study
 function set_error_status {
     log "Setting error status for study '${study_id}'"
@@ -163,9 +157,6 @@ function remove_study_from_gcp {
 
 # --- Main ---
 print_environment
-
-# Activate GCP service account
-activate_gcp_service_account
 
 exit 0
 # By default, we assume that we don't need to process the study
