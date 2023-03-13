@@ -28,10 +28,10 @@ function log {
 
 # Helper functions
 function print_environment {
-    echo "---> Environment variables:"
-    echo "  SCRIPT_DIR=${SCRIPT_DIR}"
-    echo "  path_baseline_summary_statistics=${path_baseline_summary_statistics}"
-    echo "  path_file_harmonised_listing=${path_file_harmonised_listing}"
+    log "---> Environment variables:"
+    log "  SCRIPT_DIR=${SCRIPT_DIR}"
+    log "  path_baseline_summary_statistics=${path_baseline_summary_statistics}"
+    log "  path_file_harmonised_listing=${path_file_harmonised_listing}"
 }
 
 # Activate GCP service account
@@ -46,7 +46,7 @@ print_environment
 activate_gcp_service_account
 for study in $(cat ${path_file_harmonised_listing} | head -n 1); do
     export path_study=$(readlink -f "${path_baseline_summary_statistics}/${study}")
-    echo "---> Launch processing job for study: '${path_study}'"
+    log "---> Launch processing job for study: '${path_study}'"
     #sbatch ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
     ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
 done
