@@ -71,25 +71,25 @@ function activate_gcp_service_account {
 
 # Set error status for a study
 function set_error_status {
-    log "Setting error status for study ID '${study_id}'"
+    log "Setting error status for study '${study_id}'"
     echo "${study_checksum_value} ${study_filename}" | gsutil cp - ${study_gcp_path_status_error}
 }
 
 # Clear error status for a study
 function clear_error_status {
-    log "Clearing error status for study ID '${study_id}'"
+    log "Clearing error status for study '${study_id}'"
     gsutil rm ${study_gcp_path_status_error}
 }
 
 # Set study processed
 function set_study_processed {
-    log "Setting study processed"
+    log "Setting study '${study_id}' processed flag"
     echo "${study_checksum_value} ${study_filename}" | gsutil cp - ${study_gcp_path_checksum}
 }
 
 # Clear study processed
 function clear_study_processed {
-    log "Clearing study processed"
+    log "Clearing study '${study_id}' processed flag"
     gsutil rm ${study_gcp_path_checksum}
 }
 
@@ -98,10 +98,10 @@ function check_error_status {
     log "Checking error status for study ID '${study_id}'"
     gsutil ls ${study_gcp_path_status_error} > /dev/null 2>&1
     if [[ $? -eq 0 ]]; then
-        log "Study has an error status"
+        log "Study '${study_id}' has an error status"
         return 0
     else
-        log "Study has no error status"
+        log "Study '${study_id}' has no error status"
         return 1
     fi
 }
@@ -111,10 +111,10 @@ function check_study_processed {
     log "Checking if study has been processed"
     gsutil ls ${study_gcp_path_dst} > /dev/null 2>&1
     if [[ $? -eq 0 ]]; then
-        log "Study has been seen/processed before"
+        log "Study '${study_id}' has been seen/processed before"
         return 0
     else
-        log "Study has NOT been seen/processed before"
+        log "Study '${study_id}' has NOT been seen/processed before"
         return 1
     fi
 }
@@ -143,7 +143,7 @@ if check_study_processed; then
     # Check if the study has been updated
     study_gcp_checksum_value=$(gsutil cat ${study_gcp_path_checksum} | awk '{print $1}')
     if [ "${study_gcp_checksum_value}" != "${study_checksum_value}" ]; then
-        log "Study has been updated"
+        log "Study '${study_id}' has been updated since last processing"
         # Set flag to process study
         flag_process_study=0
         # Remove the study from the GCP bucket
@@ -153,25 +153,26 @@ if check_study_processed; then
     fi
 else
     # Flag for processing if the study is new
-    log "Study is new"
+    log "Study '${study_id}' is NEW"
     # Set flag to process study
     flag_process_study=0
 fi
 
 # Process the study
 if [[ ${flag_process_study} -eq 0 ]]; then
-    log "Processing study"
+    log "Processing study '${study_id}'"
     # TODO - Process the study
     log "XXX ------------------------- STUDY PROCESSING PAYLOAD ---------------------------- XXX"
     if [[ $? -eq 0 ]]; then
-        log "Study processing was successful"
+        log "Study '${study_id}' processing was SUCCESSFUL"
         # Set the study status to OK, i.e. no errors and md5sum upload
         set_study_processed
+        # TODO - Upload the study to GCP
     else
-        log "ERROR: Study processing failed"
+        log "ERROR: Study '${study_id}' processing FAILED"
         set_error_status
     fi
 else
-    log "--- SKIP --- Study does not need to be processed"
+    log "--- SKIP --- Study '${study_id}' does not need to be processed"
 fi
 
