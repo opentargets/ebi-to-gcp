@@ -163,11 +163,11 @@ function remove_study_from_gcp {
 
 # --- Main ---
 print_environment
-exit 0
 
 # Activate GCP service account
 activate_gcp_service_account
 
+exit 0
 # By default, we assume that we don't need to process the study
 flag_process_study=1
 
