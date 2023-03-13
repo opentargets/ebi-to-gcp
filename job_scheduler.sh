@@ -21,6 +21,11 @@ path_ops_gcp_service_account="${path_ops_credentials}/gcp-service-account-gwas-s
 path_baseline_summary_statistics='/nfs/ftp/public/databases/gwas/summary_statistics'
 path_file_harmonised_listing=${path_baseline_summary_statistics}/harmonised_list.txt
 
+# Logging helpers
+function log {
+    echo "[$(date)] $@"
+}
+
 # Helper functions
 function print_environment {
     echo "---> Environment variables:"
