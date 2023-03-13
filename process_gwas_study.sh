@@ -131,7 +131,7 @@ function check_study_processed {
 # Upload processed study to GCP
 function upload_study_to_gcp {
     log "Uploading study '${study_id}' to GCP location '${study_gcp_path_dst}'"
-    singularity exec docker://google/cloud-sdk:latest gsutil cp ${WORKDIR} ${study_gcp_path_dst}
+    singularity exec docker://google/cloud-sdk:latest gsutil cp -r ${WORKDIR} ${study_gcp_path_dst}
     if [[ $? -ne 0 ]]; then
         log "ERROR: Failed to upload study '${study_id}' to GCP"
         set_error_status
