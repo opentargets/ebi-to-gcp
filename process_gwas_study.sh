@@ -6,7 +6,7 @@
 #export TMPDIR="$TMPDIR/%J-tmp_dir"
 #mkdir -p $TMPDIR
 export WORKDIR="$TMPDIR/work_dir"
-MKDIR -p $WORKDIR
+mkdir -p $WORKDIR
 #trap "rm -rf $TMPDIR" EXIT
 
 # Environment variables
