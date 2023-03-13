@@ -92,7 +92,7 @@ function clear_error_status {
 
 # Set study processed
 function set_study_processed {
-    log "Setting study '${study_id}' processed flag"
+    log "Setting study '${study_id}' processed flag to '${study_checksum_value} ${study_filename}' at '${study_gcp_path_checksum}'"
     echo "${study_checksum_value} ${study_filename}" | singularity exec docker://google/cloud-sdk:latest gsutil cp - ${study_gcp_path_checksum}
 }
 
