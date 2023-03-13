@@ -20,7 +20,7 @@ function print_environment {
 # Main
 print_environment
 for study in $(cat ${path_file_harmonised_listing} | head -n 1); do
-    export path_study=${path_baseline_summary_statistics}/${study}
+    export path_study=$(readlink -f "${path_baseline_summary_statistics}/${study}")
     echo "---> Launch processing job for study: '${path_study}'"
     #sbatch ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
     ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
