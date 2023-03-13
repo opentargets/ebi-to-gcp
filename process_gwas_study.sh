@@ -158,7 +158,6 @@ function remove_study_from_gcp {
 # --- Main ---
 print_environment
 
-exit 0
 # By default, we assume that we don't need to process the study
 flag_process_study=1
 
@@ -169,6 +168,7 @@ if check_error_status; then
     # Set flag to process study
     flag_process_study=0
 fi
+exit 0
 
 # Flag for processing if the study has been updated
 if check_study_processed; then
