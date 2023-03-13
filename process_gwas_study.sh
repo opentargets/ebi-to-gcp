@@ -188,7 +188,6 @@ else
     # Set flag to process study
     flag_process_study=0
 fi
-exit 0
 
 # Process the study
 if [[ ${flag_process_study} -eq 0 ]]; then
