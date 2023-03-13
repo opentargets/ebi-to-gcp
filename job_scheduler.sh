@@ -1,4 +1,12 @@
 #!/bin/bash
+# Job requirements
+#BSUB -J ot_gwas_sumstats_scheduler
+#BSUB -W 2:00
+#BSUB -n 1
+#BSUB -M 1024M
+#BUSB -R rusage[mem=1024M]
+#BUSB -N
+#BUSB -B
 
 # This script is used to schedule the GWAS catalog processing jobs periodically.
 
