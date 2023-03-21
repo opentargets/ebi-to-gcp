@@ -25,12 +25,12 @@ function print_environment {
 
 # Activate GCP service account
 function activate_gcp_service_account {
-    log "Activating GCP service account"
+    log "Activating GCP service account `basename ${path_ops_gcp_service_account}`"
     singularity exec docker://google/cloud-sdk:latest gcloud auth activate-service-account --key-file=${path_ops_gcp_service_account}
 }
 
 function setup_python_environment {
-    log "Setting up Python environment"
+    log "Setting up Python environment at '${path_env_python}'"
     singularity exec docker://python:latest python -m venv ${path_env_python}
     singularity exec docker://python:latest ${path_env_python}/bin/pip install -r ${SCRIPT_DIR}/requirements.txt
 }

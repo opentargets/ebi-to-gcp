@@ -41,7 +41,7 @@ study_gcp_path_status_error=${gcp_path_study_status}/${study_id}.error
 # Helper functions
 # Print environment summary
 function print_environment {
-    log "---> Environment SUMMARY for '${SCRIPT_NAME}':"
+    log "---> Local Environment for '${SCRIPT_NAME}':"
     log "  SCRIPT_DIR=${SCRIPT_DIR}"
     log "  path_study=${path_study}"
     log "  study_id=${study_id}"

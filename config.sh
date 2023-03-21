@@ -30,7 +30,7 @@ function log {
 }
 
 function print_common_environment {
-    log "---> Environment SUMMARY:"
+    log "---> Environment --- Configuration ---:"
     log "  path_ops_baseline=${path_ops_baseline}"
     log "  path_ops_credentials=${path_ops_credentials}"
     log "  path_ops_gcp_service_account=${path_ops_gcp_service_account}"
