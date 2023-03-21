@@ -31,7 +31,9 @@ study_dir=$(dirname ${path_study})
 study_filename=$(basename ${path_study})
 study_checksum_file=${study_dir}/md5sum.txt
 study_checksum_value=$(cat ${study_checksum_file} | grep ${study_filename} | awk '{print $1}')
+# The following path is used to store the study data after it has been processed
 path_study_data="$TMPDIR/${study_id}"
+# The following paths are related to GCP
 study_gcp_path_dst=${gcp_path_studies}/${study_id}
 study_gcp_path_checksum=${gcp_path_study_tracking}/${study_id}.md5
 study_gcp_path_status_error=${gcp_path_study_status}/${study_id}.error
