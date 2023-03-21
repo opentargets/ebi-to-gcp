@@ -19,8 +19,6 @@ source ${SCRIPT_DIR}/config.sh
 
 # Bootstrapping
 export TMPDIR=$(mktemp -d)
-export path_study_data="$TMPDIR/study_data"
-mkdir -p $path_study_data
 trap "rm -rf $TMPDIR" EXIT
 
 # Command line arguments
@@ -33,6 +31,7 @@ study_dir=$(dirname ${path_study})
 study_filename=$(basename ${path_study})
 study_checksum_file=${study_dir}/md5sum.txt
 study_checksum_value=$(cat ${study_checksum_file} | grep ${study_filename} | awk '{print $1}')
+path_study_data="$TMPDIR/${study_id}"
 study_gcp_path_dst=${gcp_path_studies}/${study_id}
 study_gcp_path_checksum=${gcp_path_study_tracking}/${study_id}.md5
 study_gcp_path_status_error=${gcp_path_study_status}/${study_id}.error
@@ -49,6 +48,7 @@ function print_environment {
     log "  study_filename=${study_filename}"
     log "  study_checksum_file=${study_checksum_file}"
     log "  study_checksum_value=${study_checksum_value}"
+    log "  path_study_data=${path_study_data}"
     log "  study_gcp_path_dst=${study_gcp_path_dst}"
     log "  study_gcp_path_checksum=${study_gcp_path_checksum}"
     log "  study_gcp_path_status_error=${study_gcp_path_status_error}"
@@ -128,11 +128,17 @@ function remove_study_from_gcp {
     return 0
 }
 
+# Prepare study data directory
+function prepare_study_data_folder {
+    log "Preparing study data for '${study_id}' at '${path_study_data}'"
+    mkdir -p ${path_study_data}
+}
 
 
 
 # --- Main ---
 print_environment
+prepare_study_data_folder
 
 # By default, we assume that we don't need to process the study
 flag_process_study=1
