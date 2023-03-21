@@ -39,6 +39,7 @@ function setup_python_environment {
 # Main
 print_environment
 activate_gcp_service_account
+setup_python_environment
 for study in $(cat ${path_file_harmonised_listing} | head -n 1); do
     export path_study=$(readlink -f "${path_baseline_summary_statistics}/${study}")
     log "---> Launch processing job for study: '${path_study}'"
