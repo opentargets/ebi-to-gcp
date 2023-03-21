@@ -13,7 +13,8 @@
 # Environment variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Operational defaults
-path_ops_baseline="$HOME/ot-ops"
+# TODO - Refactor this out to a common location for all scripts
+path_ops_baseline="/nfs/production/opentargets/ot-ops"
 path_ops_credentials="${path_ops_baseline}/credentials"
 path_ops_gcp_service_account="${path_ops_credentials}/gcp-service-account-gwas-summary-stats.json"
 
