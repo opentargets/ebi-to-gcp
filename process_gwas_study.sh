@@ -42,6 +42,7 @@ study_gcp_path_status_error=${gcp_path_study_status}/${study_id}.error
 function print_environment {
     log "---> Local Environment for '${SCRIPT_NAME}':"
     log "  SCRIPT_DIR=${SCRIPT_DIR}"
+    log "  TMPDIR=${TMPDIR}"
     log "  path_study=${path_study}"
     log "  study_id=${study_id}"
     log "  study_dir=${study_dir}"
