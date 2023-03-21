@@ -12,33 +12,27 @@
 
 # Environment variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME=$(basename ${BASH_SOURCE[0]})
+
 # Operational defaults
-# TODO - Refactor this out to a common location for all scripts
-path_ops_baseline="/nfs/production/opentargets/ot-ops"
-path_ops_credentials="${path_ops_baseline}/credentials"
-path_ops_gcp_service_account="${path_ops_credentials}/gcp-service-account-gwas-summary-stats.json"
-
-# Defaults
-path_baseline_summary_statistics='/nfs/ftp/public/databases/gwas/summary_statistics'
-path_file_harmonised_listing=${path_baseline_summary_statistics}/harmonised_list.txt
-
-# Logging helpers
-function log {
-    echo "[$(date)] $@"
-}
+source ${SCRIPT_DIR}/config.sh
 
 # Helper functions
 function print_environment {
-    log "---> Environment variables:"
+    log "---> Local Environment for '${SCRIPT_NAME}':"
     log "  SCRIPT_DIR=${SCRIPT_DIR}"
-    log "  path_baseline_summary_statistics=${path_baseline_summary_statistics}"
-    log "  path_file_harmonised_listing=${path_file_harmonised_listing}"
 }
 
 # Activate GCP service account
 function activate_gcp_service_account {
     log "Activating GCP service account"
     singularity exec docker://google/cloud-sdk:latest gcloud auth activate-service-account --key-file=${path_ops_gcp_service_account}
+}
+
+function setup_python_environment {
+    log "Setting up Python environment"
+    singularity exec docker://python:latest python -m venv ${path_env_python}
+    singularity exec docker://python:latest ${path_env_python}/bin/pip install -r ${SCRIPT_DIR}/requirements.txt
 }
 
 

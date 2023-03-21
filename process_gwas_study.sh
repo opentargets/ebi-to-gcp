@@ -10,6 +10,13 @@
 
 # This script will process a single GWAS study.
 
+# Environment variables
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME=$(basename ${BASH_SOURCE[0]})
+
+# Operational defaults
+source ${SCRIPT_DIR}/config.sh
+
 # Bootstrapping
 #export TMPDIR="$TMPDIR/%J-tmp_dir"
 #mkdir -p $TMPDIR
@@ -17,32 +24,9 @@ export WORKDIR="$TMPDIR/work_dir"
 mkdir -p $WORKDIR
 #trap "rm -rf $TMPDIR" EXIT
 
-# Environment variables
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# Operational defaults
-path_ops_baseline="/nfs/production/opentargets/ot-ops"
-path_ops_credentials="${path_ops_baseline}/credentials"
-path_ops_gcp_service_account="${path_ops_credentials}/gcp-service-account-gwas-summary-stats.json"
-# Path baseline for summary statistics
-path_baseline_summary_statistics='/nfs/ftp/public/databases/gwas/summary_statistics'
-# Path baseline for study processing depositions
-gcp_path_baseline='gs://open-targets-gwas-summary-stats'
-# Path to deposit the processed studies
-gcp_path_studies=${gcp_path_baseline}/studies
-# Path for study tracking related files, e.g. to find out whether a study has already been processed, needs to be reprocessed or is new
-gcp_path_study_tracking=${gcp_path_baseline}/study_tracking
-# Path for study processing status files, this is used for pointing to possible errors when processing a study, so it can be reprocessed and / or fixed
-gcp_path_study_status=${gcp_path_baseline}/study_status
-
 # Command line arguments
 [[ $# -eq 1 ]] || { echo "ERROR: Invalid number of arguments. Usage: $0 <path_study>"; exit 1; }
 path_study=$1
-
-# Logging helpers
-function log {
-    echo "[$(date)] $@"
-}
 
 # Get the GWAS study ID
 study_id=$(basename ${path_study} | egrep -o 'GCST[0-9]+')
@@ -57,16 +41,8 @@ study_gcp_path_status_error=${gcp_path_study_status}/${study_id}.error
 # Helper functions
 # Print environment summary
 function print_environment {
-    log "---> Environment SUMMARY:"
+    log "---> Environment SUMMARY for '${SCRIPT_NAME}':"
     log "  SCRIPT_DIR=${SCRIPT_DIR}"
-    log "  path_ops_baseline=${path_ops_baseline}"
-    log "  path_ops_credentials=${path_ops_credentials}"
-    log "  path_ops_gcp_service_account=${path_ops_gcp_service_account}"
-    log "  path_baseline_summary_statistics=${path_baseline_summary_statistics}"
-    log "  gcp_path_baseline=${gcp_path_baseline}"
-    log "  gcp_path_studies=${gcp_path_studies}"
-    log "  gcp_path_study_tracking=${gcp_path_study_tracking}"
-    log "  gcp_path_study_status=${gcp_path_study_status}"
     log "  path_study=${path_study}"
     log "  study_id=${study_id}"
     log "  study_dir=${study_dir}"
