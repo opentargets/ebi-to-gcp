@@ -18,11 +18,10 @@ SCRIPT_NAME=$(basename ${BASH_SOURCE[0]})
 source ${SCRIPT_DIR}/config.sh
 
 # Bootstrapping
-#export TMPDIR="$TMPDIR/%J-tmp_dir"
-#mkdir -p $TMPDIR
-export WORKDIR="$TMPDIR/work_dir"
-mkdir -p $WORKDIR
-#trap "rm -rf $TMPDIR" EXIT
+export TMPDIR=$(mktemp -d)
+export path_study_data="$TMPDIR/study_data"
+mkdir -p $path_study_data
+trap "rm -rf $TMPDIR" EXIT
 
 # Command line arguments
 [[ $# -eq 1 ]] || { echo "ERROR: Invalid number of arguments. Usage: $0 <path_study>"; exit 1; }
@@ -107,7 +106,7 @@ function check_study_processed {
 # Upload processed study to GCP
 function upload_study_to_gcp {
     log "Uploading study '${study_id}' to GCP location '${study_gcp_path_dst}'"
-    singularity exec docker://google/cloud-sdk:latest gsutil -m rsync -d -e -r ${WORKDIR}/ ${study_gcp_path_dst}/
+    singularity exec docker://google/cloud-sdk:latest gsutil -m rsync -d -e -r ${path_study_data}/ ${study_gcp_path_dst}/
     if [[ $? -ne 0 ]]; then
         log "ERROR: Failed to upload study '${study_id}' to GCP"
         set_error_status
@@ -172,7 +171,7 @@ if [[ ${flag_process_study} -eq 0 ]]; then
     log "XXX ------------------------- [START] STUDY PROCESSING PAYLOAD [START] ---------------------------- XXX"
     # Touch 10 empty files in WORKDIR
     for i in {1..10}; do
-        touch ${WORKDIR}/file_${i}.parquet
+        touch ${path_study_data}/file_${i}.parquet
     done
     log "XXX ------------------------- [END]   STUDY PROCESSING PAYLOAD   [END] ---------------------------- XXX"
     if [[ $? -eq 0 ]]; then
