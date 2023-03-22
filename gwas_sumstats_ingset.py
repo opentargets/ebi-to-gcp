@@ -445,7 +445,7 @@ def main(
     # if pval_threshold != 1:
     # # Applying p-value threshold:
     #     ss.filter_by_pvalue(pval_threshold)
-
+    logging.debug(f"Writing summary statistics to {output_file}")
     ss._df.write.mode("overwrite").parquet(output_file)
 
 
