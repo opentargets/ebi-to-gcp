@@ -476,6 +476,9 @@ def parse_arguments() -> tuple:
         default=1.0,
     )
 
+    # Tell the parser to set the error exit code if missing arguments
+    parser.exit_on_error = True
+
     args = parser.parse_args()
     return (args.input_file, args.output_file, args.pval_threshold)
 

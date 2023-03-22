@@ -178,8 +178,9 @@ if [[ ${flag_process_study} -eq 0 ]]; then
     log "Processing study '${study_id}'"
     # TODO - Process the study
     log "XXX ------------------------- [START] STUDY - '${study_id}' - PROCESSING PAYLOAD [START] ---------------------------- XXX"
-    singularity exec docker://python:latest ${path_env_python}/bin/python ${path_payload_processing} --input-file ${path_study} --output-file ${path_study_data}
+    singularity exec docker://python:latest ${path_env_python}/bin/python ${path_payload_processing} --input-file ${path_study} --output_file ${path_study_data}
     log "XXX ------------------------- [END]   STUDY - '${study_id}' - PROCESSING PAYLOAD   [END] ---------------------------- XXX"
+    # TODO - The first version failed, 
     if [[ $? -eq 0 ]]; then
         log "Study '${study_id}' processing was SUCCESSFUL"
         # Upload the study to GCP
