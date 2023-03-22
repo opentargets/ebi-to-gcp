@@ -133,7 +133,7 @@ function remove_study_from_gcp {
 # Prepare study data directory
 function prepare_study_data_folder {
     log "Preparing study data for '${study_id}' at '${path_study_data}'"
-    mkdir -p ${path_study_data}
+    #mkdir -p ${path_study_data}
 }
 
 
