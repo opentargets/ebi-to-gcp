@@ -389,10 +389,11 @@ class SummaryStatistics(Dataset):
             _df=processed_sumstats_df,
         )
 
-        return summary_stats._df.repartition(
+        summary_stats._df = summary_stats._df.repartition(
             200,
             "chromosome",
         ).sortWithinPartitions("position")
+        return summary_stats
 
 
 def path_2_study_id(sumstats_location: str) -> str:
