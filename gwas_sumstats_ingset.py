@@ -363,6 +363,7 @@ class SummaryStatistics(Dataset):
             if "hm_effect_allele_frequency" in sumstats_df.columns
             else f.lit(None)
         )
+        logging.warning(f"Allele frequency expression, computed")
 
         # Processing columns of interest:
         processed_sumstats_df = sumstats_df.select(
@@ -384,15 +385,19 @@ class SummaryStatistics(Dataset):
             ),
             allele_frequency_expression.alias("effectAlleleFrequencyFromSource"),
         )
+        logging.warning(f"Processed sumstats dataframe")
+        processed_sumstats_df.show(3)
         # Initializing summary statistics object:
         summary_stats = cls(
             _df=processed_sumstats_df,
         )
+        logging.warning(f"Initialized summary statistics object built")
 
         summary_stats._df = summary_stats._df.repartition(
             200,
             "chromosome",
         ).sortWithinPartitions("position")
+        logging.warning(f"Repartitioned and sorted")
         return summary_stats
 
 
@@ -436,7 +441,9 @@ def main(
         None
     """
     study_id = path_2_study_id(input_file)
+    logging.warning(f"Processing study {study_id}")
     ss_df = spark.read.csv(input_file, sep="\t", header=True)
+    logging.warning(f"Read {ss_df.count()} rows from {input_file}")
     ss = SummaryStatistics.from_gwas_harmonized_summary_stats(ss_df, study_id)
 
     print(str(ss))
