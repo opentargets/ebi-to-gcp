@@ -389,7 +389,7 @@ class SummaryStatistics(Dataset):
             _df=processed_sumstats_df,
         )
 
-        return summary_stats.df.repartition(
+        return summary_stats._df.repartition(
             200,
             "chromosome",
         ).sortWithinPartitions("position")
@@ -443,7 +443,7 @@ def main(
     # # Applying p-value threshold:
     #     ss.filter_by_pvalue(pval_threshold)
 
-    ss.write.mode("overwrite").parquet(output_file)
+    ss._df.write.mode("overwrite").parquet(output_file)
 
 
 def parse_arguments() -> tuple:
