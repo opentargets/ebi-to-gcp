@@ -438,6 +438,8 @@ def main(
     ss_df = spark.read.csv(input_file, sep="\t", header=True)
     ss = SummaryStatistics.from_gwas_harmonized_summary_stats(ss_df, study_id)
 
+    print(str(ss))
+
     # TODO: implement filter functionality.
     # if pval_threshold != 1:
     # # Applying p-value threshold:
