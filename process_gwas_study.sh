@@ -179,8 +179,6 @@ if [[ ${flag_process_study} -eq 0 ]]; then
     # TODO - Process the study
     log "XXX ------------------------- [START] STUDY - '${study_id}' - PROCESSING PAYLOAD [START] ---------------------------- XXX"
     singularity exec docker://python:latest ${path_env_python}/bin/python ${path_payload_processing} --input-file ${path_study} --output_file ${path_study_data}
-    log "XXX ------------------------- [END]   STUDY - '${study_id}' - PROCESSING PAYLOAD   [END] ---------------------------- XXX"
-    # TODO - The first version failed, 
     if [[ $? -eq 0 ]]; then
         log "Study '${study_id}' processing was SUCCESSFUL"
         # Upload the study to GCP
@@ -200,4 +198,5 @@ if [[ ${flag_process_study} -eq 0 ]]; then
 else
     log "--- SKIP --- Study '${study_id}' does not need to be processed"
 fi
+log "XXX ------------------------- [END]   STUDY - '${study_id}' - PROCESSING PAYLOAD   [END] ---------------------------- XXX"
 
