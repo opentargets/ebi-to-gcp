@@ -446,7 +446,8 @@ def main(
     # # Applying p-value threshold:
     #     ss.filter_by_pvalue(pval_threshold)
     logging.warning(f"Writing summary statistics to {output_file}")
-    ss._df.write.mode("overwrite").parquet(output_file)
+    ss._df.show()
+    #ss._df.write.mode("overwrite").parquet(output_file)
 
 
 def parse_arguments() -> tuple:

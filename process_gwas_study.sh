@@ -19,7 +19,7 @@ source ${SCRIPT_DIR}/config.sh
 
 # Bootstrapping
 export TMPDIR=$(mktemp -d)
-#trap "rm -rf $TMPDIR" EXIT
+trap "rm -rf $TMPDIR" EXIT
 
 # Command line arguments
 [[ $# -eq 1 ]] || { echo "ERROR: Invalid number of arguments. Usage: $0 <path_study>"; exit 1; }
