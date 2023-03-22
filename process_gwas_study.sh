@@ -178,7 +178,7 @@ if [[ ${flag_process_study} -eq 0 ]]; then
     log "Processing study '${study_id}'"
     # Process the study
     log "XXX ------------------------- [START] STUDY - '${study_id}' - PROCESSING PAYLOAD [START] ---------------------------- XXX"
-    singularity exec docker://python:latest ${path_env_python}/bin/python ${path_payload_processing} --input_file ${path_study} --output_file ${path_study_data}
+    singularity exec --bind /nfs/ftp:/nfs/ftp docker://${runtime_pyspark_image} ${path_env_python}/bin/python ${path_payload_processing} --input_file ${path_study} --output_file ${path_study_data}
     if [[ $? -eq 0 ]]; then
         log "Study '${study_id}' processing was SUCCESSFUL"
         # Upload the study to GCP

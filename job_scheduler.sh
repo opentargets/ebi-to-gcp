@@ -31,8 +31,8 @@ function activate_gcp_service_account {
 
 function setup_python_environment {
     log "Setting up Python environment at '${path_env_python}'"
-    singularity exec docker://python:latest python -m venv ${path_env_python}
-    singularity exec docker://python:latest ${path_env_python}/bin/pip install -r ${SCRIPT_DIR}/requirements.txt
+    singularity exec docker://${runtime_pyspark_image} python -m venv ${path_env_python}
+    singularity exec docker://${runtime_pyspark_image} ${path_env_python}/bin/pip install -r ${SCRIPT_DIR}/requirements.txt
 }
 
 

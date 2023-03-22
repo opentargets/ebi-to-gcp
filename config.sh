@@ -22,6 +22,8 @@ gcp_path_studies=${gcp_path_baseline}/studies
 gcp_path_study_tracking=${gcp_path_baseline}/study_tracking
 # Path for study processing status files, this is used for pointing to possible errors when processing a study, so it can be reprocessed and / or fixed
 gcp_path_study_status=${gcp_path_baseline}/study_status
+# Runtime - Docker container
+runtime_pyspark_image='jupyter/pyspark-notebook:latest'
 
 
 # Helpers
@@ -42,6 +44,7 @@ function print_common_environment {
     log "  gcp_path_studies=${gcp_path_studies}"
     log "  gcp_path_study_tracking=${gcp_path_study_tracking}"
     log "  gcp_path_study_status=${gcp_path_study_status}"
+    log "  runtime_pyspark_image=${runtime_pyspark_image}"
 }
 
 # Main
