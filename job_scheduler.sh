@@ -12,11 +12,16 @@
 
 
 # This script is used to schedule the GWAS catalog processing jobs periodically.
-source /etc/bashrc
 
 # Environment variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SCRIPT_NAME=$(basename ${BASH_SOURCE[0]})
+
+# DEBUG
+env
+pwd
+echo "SCRIPT_DIR=${SCRIPT_DIR}"
+echo "SCRIPT_NAME=${SCRIPT_NAME}"
 
 # Operational defaults
 source ${SCRIPT_DIR}/config.sh
