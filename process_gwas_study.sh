@@ -41,9 +41,9 @@ study_gcp_path_dst=${gcp_path_studies}/${study_id}
 study_gcp_path_checksum=${gcp_path_study_tracking}/${study_id}.md5
 study_gcp_path_status_error=${gcp_path_study_status}/${study_id}.error
 # LSF environment related paths
-lsf_path_output_error_file=$LSB_ERRORFILE
-lsf_path_output_file=$LSB_OUTPUTFILE
-# Analysis related paths
+lsf_path_output_error_file=${LSB_ERRORFILE:-$TMPDIR/job.out}
+lsf_path_output_file=${LSB_OUTPUTFILE:-$TMPDIR/job.err}
+# Analysis related perrs
 path_output_gwas_analysis_error=$(dirname ${lsf_path_output_error_file})/${study_id}.gwas_sumstats.err
 
 # Helper functions
