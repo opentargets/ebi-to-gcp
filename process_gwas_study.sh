@@ -34,7 +34,7 @@ study_dir=$(dirname ${path_study})
 study_filename=$(basename ${path_study})
 study_checksum_file=${study_dir}/md5sum.txt
 study_checksum_value=$(cat ${study_checksum_file} | grep ${study_filename} | awk '{print $1}')
-study_ftp_path="https://ftp.ebi.ac.uk/pub$(sed -n 's/\/nfs\/ebi\/public//g')"
+study_ftp_path=${path_study/\/nfs\/ftp\/public/https:\/\/ftp.ebi.ac.uk\/pub}
 # The following path is used to store the study data after it has been processed
 path_study_data="$TMPDIR/${study_id}"
 # The following paths are related to GCP
