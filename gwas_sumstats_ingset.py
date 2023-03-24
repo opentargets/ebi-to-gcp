@@ -60,7 +60,7 @@ def main(
     allele_frequency_expression = (
         f.col("hm_effect_allele_frequency").cast(t.DoubleType())
         if "hm_effect_allele_frequency" in ss_df.columns
-        else f.lit(None)
+        else f.lit(None).cast(t.DoubleType())
     )
     logging.warning(f"Allele frequency expression, computed")
 
@@ -69,17 +69,19 @@ def main(
         # Adding study identifier:
         f.lit(study_id).cast(t.StringType()).alias("studyId"),
         # Adding variant identifier and other harmonized fields:
-        f.col('hm_variant_id').alias('variantId'),
-        f.col('chromosome').alias('chromosome'),
-        f.col('base_pair_location').alias('position'),
+        f.col('hm_rsid').cast(t.StringType()).alias('rsId'),
+        f.col('hm_variant_id').cast(t.StringType()).alias('variantId'),
+        f.col('hm_chrom').cast(t.StringType()).alias('chromosome'),
+        f.col('hm_pos').cast(t.IntegerType()).alias('position'),
         f.col('hm_other_allele').alias('referenceAllele'),
         f.col('hm_effect_allele').alias('alternateAllele'),
         # Adding harmonized effect:
-        f.col('hm_odds_ratio').alias('oddsRatio'),
-        f.col('hm_beta').alias('beta'),
-        f.col('hm_ci_lower').alias('confidenceIntervalLower'),
-        f.col('hm_ci_upper').alias('confidenceIntervalUpper'),
-        f.col("standard_error").alias('standardError'),
+        f.col('p_value').cast(t.StringType()).alias('pValue'),
+        f.col('hm_odds_ratio').cast(t.DoubleType()).alias('oddsRatio'),
+        f.col('hm_beta').cast(t.DoubleType()).alias('beta'),
+        f.col('hm_ci_lower').cast(t.DoubleType()).alias('confidenceIntervalLower'),
+        f.col('hm_ci_upper').cast(t.DoubleType()).alias('confidenceIntervalUpper'),
+        f.col("standard_error").cast(t.DoubleType()).alias('standardError'),
         allele_frequency_expression.alias('alternateAlleleFrequency')
     ).repartition(200, 'chromosome').sortWithinPartitions('position')
 
