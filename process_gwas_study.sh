@@ -71,12 +71,13 @@ function print_environment {
 function set_error_status {
     tmp_path_error_log=$TMPDIR/${study_id}.error.log
     log "Collecting summary stats processing error information for study '${study_id}' at temporary path '${tmp_path_error_log}'"
-    echo -e "--- ERROR processing study '${study_id}' ---\n" >> ${tmp_path_error_log}
+    echo -e "--- ERROR processing study '${study_id}' ---" >> ${tmp_path_error_log}
+    echo -e "\tStudy path: ${path_study}" >> ${tmp_path_error_log}
     echo -e "${study_checksum_value} ${study_filename}\n" >> ${tmp_path_error_log}
-    echo -e "---> LSF PATHS:\n" >> ${tmp_path_error_log}
-    echo -e "\tLSF stdout file: ${lsf_path_output_file}\n" >> ${tmp_path_error_log}
+    echo -e "---> LSF PATHS:" >> ${tmp_path_error_log}
+    echo -e "\tLSF stdout file: ${lsf_path_output_file}" >> ${tmp_path_error_log}
     echo -e "\tLSF stderr file: ${lsf_path_output_error_file}\n" >> ${tmp_path_error_log}
-    echo -e "---> GWAS ANALYSIS ERROR LOG:\n" >> ${tmp_path_error_log}
+    echo -e "---> GWAS ANALYSIS ERROR LOG:" >> ${tmp_path_error_log}
     cat ${path_output_gwas_analysis_error} >> ${tmp_path_error_log}
     #echo "${study_checksum_value} ${study_filename}" | singularity exec docker://google/cloud-sdk:latest gsutil cp - ${study_gcp_path_status_error}
     log "Setting error status for study '${study_id}' at GCP path '${study_gcp_path_status_error}'"
