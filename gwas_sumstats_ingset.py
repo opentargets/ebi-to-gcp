@@ -510,7 +510,7 @@ if __name__ == "__main__":
     logging.info(f"Applied p-value threshold: {pval_threshold}")
 
     # Initialize local spark:
-    spark = SparkSession.builder.getOrCreate()
+    spark = SparkSession.builder.appName("gwas_sumstats").master("local[16]").config("spark.driver.memory", "30g").getOrCreate()
 
     # Process data:
     main(spark, input_file, output_file, pval_threshold)
