@@ -48,6 +48,6 @@ for study in $(cat ${path_file_harmonised_listing} | head -n 1); do
     log "---> Launch processing job for study: '${path_study}'"
     #bsub -q datamover -J ot_gwas_sumstats_worker -W 1:00 -n 16 -M 32768M -R "rusage[mem=32768M]" -R "span[hosts=1]" ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
     export PARAM_PATH_STUDY=${path_study}
-    bsub -q datamover -cwd "${SCRIPT_DIR}" < ${SCRIPT_DIR}/process_gwas_study.sh
+    bsub -q datamover < ${SCRIPT_DIR}/process_gwas_study.sh
     #${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
 done
