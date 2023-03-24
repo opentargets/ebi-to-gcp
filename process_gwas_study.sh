@@ -12,6 +12,7 @@
 #BSUB -o /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_worker-%J.out
 
 # This script will process a single GWAS study.
+source /etc/bashrc
 
 # Environment variables
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
