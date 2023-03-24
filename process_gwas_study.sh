@@ -1,7 +1,7 @@
 #!/bin/bash
 # Job requirements
 #BSUB -J ot_gwas_sumstats_worker
-#BSUB -W 1:00
+#BSUB -W 0:20
 #BSUB -n 12
 #BSUB -M 16384M
 #BSUB -R rusage[mem=16384M]
