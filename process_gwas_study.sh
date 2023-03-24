@@ -2,9 +2,9 @@
 # Job requirements
 #BSUB -J ot_gwas_sumstats_worker
 #BSUB -W 1:00
-#BSUB -n 16
-#BSUB -M 32768M
-#BSUB -R rusage[mem=32768M]
+#BSUB -n 12
+#BSUB -M 16384M
+#BSUB -R rusage[mem=16384M]
 #BSUB -R span[hosts=1]
 #BSUB -N
 #BSUB -B
