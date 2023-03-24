@@ -79,6 +79,7 @@ def main(
         f.col('hm_beta').alias('beta'),
         f.col('hm_ci_lower').alias('confidenceIntervalLower'),
         f.col('hm_ci_upper').alias('confidenceIntervalUpper'),
+        f.col("standard_error").alias('standardError'),
         allele_frequency_expression.alias('alternateAlleleFrequency')
     ).repartition(200, 'chromosome').sortWithinPartitions('position')
 
