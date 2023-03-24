@@ -1,7 +1,12 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [[ -n "$LS_EXECCWD" ]]; then
+    SCRIPT_DIR=$LS_EXECCWD
+    cd $LS_EXECCWD
+else
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+fi
 
 # Operational environment for the scripts in this repository
 # Operational defaults
