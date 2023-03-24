@@ -46,6 +46,7 @@ setup_python_environment
 for study in $(cat ${path_file_harmonised_listing} | head -n 1); do
     export path_study=$(readlink -f "${path_baseline_summary_statistics}/${study}")
     log "---> Launch processing job for study: '${path_study}'"
-    export PARAM_PATH_STUDY=${path_study} ; bsub -cwd ${SCRIPT_DIR} -q datamover < ${SCRIPT_DIR}/process_gwas_study.sh
+    bsub -q datamover bsub -J ot_gwas_sumstats_worker -W 1:00 -n 16 -M 32768M -R "rusage[mem=32768M]" -R "span[hosts=1]" <your_job_script>
+ ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
     #${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
 done
