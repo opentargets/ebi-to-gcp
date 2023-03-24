@@ -206,7 +206,7 @@ if [[ ${flag_process_study} -eq 0 ]]; then
     # Process the study
     log "[ ------------------------- [START] STUDY - '${study_id}' - PROCESSING PAYLOAD [START] ---------------------------- ]"
     #log "Copy file to current folder, '${path_study}'"
-    singularity exec --bind /nfs/ftp:/nfs/ftp docker://${runtime_pyspark_image} python ${path_payload_processing} --input-file ${path_study} --output_file ${path_study_data} 2> ${path_output_gwas_analysis_error}
+    singularity exec --bind /nfs/ftp:/nfs/ftp docker://${runtime_pyspark_image} python ${path_payload_processing} --input_file ${path_study} --output_file ${path_study_data} 2> ${path_output_gwas_analysis_error}
     if [[ $? -eq 0 ]]; then
         log "Study '${study_id}' processing was SUCCESSFUL"
         # Upload the study to GCP
