@@ -37,7 +37,7 @@ def path_2_study_id(sumstats_location: str) -> str:
 
 
 def main(
-    spark: SparkSession, input_file: str, output_folder: str
+    spark: SparkSession, input_file: str, output_file: str
 ) -> None:
     """Main function to process summary statistics.
 
@@ -83,8 +83,8 @@ def main(
         allele_frequency_expression.alias('alternateAlleleFrequency')
     ).repartition(200, 'chromosome').sortWithinPartitions('position')
 
-    logging.warning(f"Writing summary statistics to {output_folder}/{study_id}")
-    processed_sumstats_df.write.mode("overwrite").parquet(f'{output_folder}/{study_id}')
+    logging.warning(f"Writing summary statistics to {output_file}")
+    processed_sumstats_df.write.mode("overwrite").parquet(output_file)
 
 
 def parse_arguments() -> tuple:
@@ -104,7 +104,7 @@ def parse_arguments() -> tuple:
         required=True,
     )
     parser.add_argument(
-        "--output_folder",
+        "--output_file",
         help="Output processed summary statistics in parquet format.",
         type=str,
         required=True,
@@ -114,12 +114,12 @@ def parse_arguments() -> tuple:
     parser.exit_on_error = True
 
     args = parser.parse_args()
-    return (args.input_file, args.output_folder)
+    return (args.input_file, args.output_file)
 
 
 if __name__ == "__main__":
     # Parse parameters.
-    (input_file, output_folder) = parse_arguments()
+    (input_file, output_file) = parse_arguments()
 
     # Set up logging:
     logging.basicConfig(
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     )
 
     logging.info(f"Processing summary statistics: {input_file}")
-    logging.info(f"Saving summary statistics to folder: {output_folder}")
+    logging.info(f"Saving summary statistics to folder: {output_file}")
     # Initialize local spark:
     spark = (
         SparkSession
@@ -142,4 +142,4 @@ if __name__ == "__main__":
     )
 
     # Process data:
-    main(spark, input_file, output_folder)
+    main(spark, input_file, output_file)
