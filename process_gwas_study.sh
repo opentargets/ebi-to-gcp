@@ -34,6 +34,7 @@ study_dir=$(dirname ${path_study})
 study_filename=$(basename ${path_study})
 study_checksum_file=${study_dir}/md5sum.txt
 study_checksum_value=$(cat ${study_checksum_file} | grep ${study_filename} | awk '{print $1}')
+study_ftp_path="https://ftp.ebi.ac.uk/pub$(sed -n 's/\/nfs\/ebi\/public//g')"
 # The following path is used to store the study data after it has been processed
 path_study_data="$TMPDIR/${study_id}"
 # The following paths are related to GCP
@@ -58,6 +59,7 @@ function print_environment {
     log "  study_filename=${study_filename}"
     log "  study_checksum_file=${study_checksum_file}"
     log "  study_checksum_value=${study_checksum_value}"
+    log "  study_ftp_path=${study_ftp_path}"
     log "  path_study_data=${path_study_data}"
     log "  study_gcp_path_dst=${study_gcp_path_dst}"
     log "  study_gcp_path_checksum=${study_gcp_path_checksum}"
@@ -72,11 +74,14 @@ function set_error_status {
     tmp_path_error_log=$TMPDIR/${study_id}.error.log
     log "Collecting summary stats processing error information for study '${study_id}' at temporary path '${tmp_path_error_log}'"
     echo -e "--- ERROR processing study '${study_id}' ---" >> ${tmp_path_error_log}
-    echo -e "\tStudy path: ${path_study}" >> ${tmp_path_error_log}
-    echo -e "${study_checksum_value} ${study_filename}\n" >> ${tmp_path_error_log}
+    echo -e "\tChecksum      : ${study_checksum_value}" >> ${tmp_path_error_log}
+    echo -e "\tStudy path    : ${path_study}" >> ${tmp_path_error_log}
+    echo -e "\tStudy FTP path: ${study_ftp_path}" >> ${tmp_path_error_log}
+    echo -e "\n" >> ${tmp_path_error_log}
     echo -e "---> LSF PATHS:" >> ${tmp_path_error_log}
     echo -e "\tLSF stdout file: ${lsf_path_output_file}" >> ${tmp_path_error_log}
-    echo -e "\tLSF stderr file: ${lsf_path_output_error_file}\n" >> ${tmp_path_error_log}
+    echo -e "\tLSF stderr file: ${lsf_path_output_error_file}" >> ${tmp_path_error_log}
+    echo -e "\n" >> ${tmp_path_error_log}
     echo -e "---> GWAS ANALYSIS ERROR LOG:" >> ${tmp_path_error_log}
     cat ${path_output_gwas_analysis_error} >> ${tmp_path_error_log}
     #echo "${study_checksum_value} ${study_filename}" | singularity exec docker://google/cloud-sdk:latest gsutil cp - ${study_gcp_path_status_error}
