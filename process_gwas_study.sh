@@ -25,8 +25,16 @@ export TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
 # Command line arguments
-[[ $# -eq 1 ]] || { echo "ERROR: Invalid number of arguments. Usage: $0 <path_study>"; exit 1; }
-path_study=$1
+# Check if PARAM_PATH_STUDY environment variable is set or if a command line argument is provided
+if [[ -n "$PARAM_PATH_STUDY" ]]; then
+    path_study=$PARAM_PATH_STUDY
+elif [[ $# -eq 1 ]]; then
+    path_study=$1
+else
+    echo "ERROR: No input provided. Either set PARAM_PATH_STUDY environment variable or provide a command line argument. Usage: $0 <path_study>"
+    exit 1
+fi
+
 
 # Get the GWAS study ID
 study_id=$(basename ${path_study} | egrep -o 'GCST[0-9]+')

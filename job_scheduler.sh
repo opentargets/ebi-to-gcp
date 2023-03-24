@@ -46,6 +46,6 @@ setup_python_environment
 for study in $(cat ${path_file_harmonised_listing} | head -n 1); do
     export path_study=$(readlink -f "${path_baseline_summary_statistics}/${study}")
     log "---> Launch processing job for study: '${path_study}'"
-    bsub -q datamover ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
+    export PARAM_PATH_STUDY=${path_study} ; bsub -cwd ${PWD} -q datamover < ${SCRIPT_DIR}/process_gwas_study.sh
     #${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
 done
