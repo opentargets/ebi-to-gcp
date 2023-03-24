@@ -40,6 +40,11 @@ path_study_data="$TMPDIR/${study_id}"
 study_gcp_path_dst=${gcp_path_studies}/${study_id}
 study_gcp_path_checksum=${gcp_path_study_tracking}/${study_id}.md5
 study_gcp_path_status_error=${gcp_path_study_status}/${study_id}.error
+# LSF environment related paths
+lsf_path_output_error_file=$LSB_ERRORFILE
+lsf_path_output_file=$LSB_OUTPUTFILE
+# Analysis related paths
+path_output_gwas_analysis_error=$(dirname ${lsf_path_output_error_file})/${study_id}.gwas_sumstats.err
 
 # Helper functions
 # Print environment summary
@@ -57,12 +62,25 @@ function print_environment {
     log "  study_gcp_path_dst=${study_gcp_path_dst}"
     log "  study_gcp_path_checksum=${study_gcp_path_checksum}"
     log "  study_gcp_path_status_error=${study_gcp_path_status_error}"
+    log "  lsf_path_output_error_file=${lsf_path_output_error_file}"
+    log "  lsf_path_output_file=${lsf_path_output_file}"
+    log "  path_output_gwas_analysis_error=${path_output_gwas_analysis_error}"
 }
 
 # Set error status for a study
 function set_error_status {
-    log "Setting error status for study '${study_id}'"
-    echo "${study_checksum_value} ${study_filename}" | singularity exec docker://google/cloud-sdk:latest gsutil cp - ${study_gcp_path_status_error}
+    tmp_path_error_log=$TMPDIR/${study_id}.error.log
+    log "Collecting summary stats processing error information for study '${study_id}' at temporary path '${tmp_path_error_log}'"
+    echo -e "--- ERROR processing study '${study_id}' ---\n" >> ${tmp_path_error_log}
+    echo -e "${study_checksum_value} ${study_filename}\n" >> ${tmp_path_error_log}
+    echo -e "---> LSF PATHS:\n" >> ${tmp_path_error_log}
+    echo -e "\tLSF stdout file: ${lsf_path_output_file}\n" >> ${tmp_path_error_log}
+    echo -e "\tLSF stderr file: ${lsf_path_output_error_file}\n" >> ${tmp_path_error_log}
+    echo -e "---> GWAS ANALYSIS ERROR LOG:\n" >> ${tmp_path_error_log}
+    cat ${path_output_gwas_analysis_error} >> ${tmp_path_error_log}
+    #echo "${study_checksum_value} ${study_filename}" | singularity exec docker://google/cloud-sdk:latest gsutil cp - ${study_gcp_path_status_error}
+    log "Setting error status for study '${study_id}' at GCP path '${study_gcp_path_status_error}'"
+    cat ${tmp_path_error_log} | singularity exec docker://google/cloud-sdk:latest gsutil cp - ${study_gcp_path_status_error}
 }
 
 # Clear error status for a study
@@ -182,7 +200,7 @@ if [[ ${flag_process_study} -eq 0 ]]; then
     # Process the study
     log "[ ------------------------- [START] STUDY - '${study_id}' - PROCESSING PAYLOAD [START] ---------------------------- ]"
     #log "Copy file to current folder, '${path_study}'"
-    singularity exec --bind /nfs/ftp:/nfs/ftp docker://${runtime_pyspark_image} python ${path_payload_processing} --input_file ${path_study} --output_file ${path_study_data}
+    singularity exec --bind /nfs/ftp:/nfs/ftp docker://${runtime_pyspark_image} python ${path_payload_processing} --input_file ${path_study} --output_file ${path_study_data} 2>&1 | tee ${path_output_gwas_analysis_error}
     if [[ $? -eq 0 ]]; then
         log "Study '${study_id}' processing was SUCCESSFUL"
         # Upload the study to GCP
