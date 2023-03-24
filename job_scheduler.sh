@@ -14,7 +14,12 @@
 # This script is used to schedule the GWAS catalog processing jobs periodically.
 
 # Environment variables
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [[ -n "$LS_EXECCWD" ]]; then
+    SCRIPT_DIR=$LS_EXECCWD
+    cd $LS_EXECCWD
+else
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+fi
 SCRIPT_NAME=$(basename ${BASH_SOURCE[0]})
 
 # DEBUG

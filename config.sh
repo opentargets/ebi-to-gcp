@@ -28,7 +28,12 @@ runtime_pyspark_image='bitnami/spark:3.3.2-debian-11-r10'
 
 # Helpers
 function log {
-    echo "[$(date)] $@"
+    if [[ -n "$LSB_JOBID" ]]; then
+        log_prompt="[$(date)] [LSF] [${LSB_JOBID}]"
+    else
+        log_prompt="[$(date)] [LOCAL]"
+    fi
+    echo "$log_prompt $@"
 }
 
 function print_common_environment {
