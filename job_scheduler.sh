@@ -1,12 +1,15 @@
 #!/bin/bash
 # Job requirements
 #BSUB -J ot_gwas_sumstats_scheduler
-#BSUB -W 2:00
+#BSUB -W 1:00
 #BSUB -n 1
 #BSUB -M 1024M
-#BUSB -R rusage[mem=1024M]
-#BUSB -N
-#BUSB -B
+#BSUB -R rusage[mem=1024M]
+#BSUB -N
+#BSUB -B
+#BSUB -e /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_scheduler-%J.err
+#BSUB -o /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_scheduler-%J.out
+
 
 # This script is used to schedule the GWAS catalog processing jobs periodically.
 

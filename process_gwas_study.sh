@@ -1,12 +1,15 @@
 #!/bin/bash
 # Job requirements
 #BSUB -J ot_gwas_sumstats_worker
-#BSUB -W 3:00
-#BSUB -n 1
-#BSUB -M 1024M
-#BUSB -R rusage[mem=1024M]
-#BUSB -N
-#BUSB -B
+#BSUB -W 2:00
+#BSUB -n 16
+#BSUB -M 32768M
+#BSUB -R rusage[mem=32768M]
+#BSUB -R span[hosts=1]
+#BSUB -N
+#BSUB -B
+#BSUB -e /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_worker-%J.err
+#BSUB -o /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_worker-%J.out
 
 # This script will process a single GWAS study.
 
