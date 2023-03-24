@@ -131,7 +131,14 @@ if __name__ == "__main__":
     logging.info(f"Processing summary statistics: {input_file}")
     logging.info(f"Saving summary statistics to folder: {output_folder}")
     # Initialize local spark:
-    spark = SparkSession.builder.appName("gwas_sumstats").master("local[12]").config("spark.driver.memory", "15g").getOrCreate()
+    spark = (
+        SparkSession
+        .builder
+        .appName("gwas_sumstats")
+        .master("local[12]")
+        .config("spark.driver.memory", "15g")
+        .getOrCreate()
+    )
 
     # Process data:
     main(spark, input_file, output_folder)
