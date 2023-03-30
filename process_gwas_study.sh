@@ -57,7 +57,7 @@ study_gcp_path_status_error=${gcp_path_study_status}/${study_id}.error
 lsf_path_output_error_file=${LSB_ERRORFILE:-$TMPDIR/job.out}
 lsf_path_output_file=${LSB_OUTPUTFILE:-$TMPDIR/job.err}
 # Analysis related perrs
-path_output_gwas_analysis_error=$(dirname ${lsf_path_output_error_file})/${study_id}.gwas_sumstats.err
+path_output_gwas_analysis_error=$TMPDIR/${study_id}.gwas_sumstats.err
 
 # Helper functions
 # Print environment summary
