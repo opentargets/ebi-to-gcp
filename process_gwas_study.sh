@@ -7,7 +7,6 @@
 #BSUB -R rusage[mem=16384M]
 #BSUB -R span[hosts=1]
 #BSUB -N
-#BSUB -B
 #BSUB -e /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_worker-%J.err
 #BSUB -o /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_worker-%J.out
 

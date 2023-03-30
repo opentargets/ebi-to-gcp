@@ -6,7 +6,6 @@
 #BSUB -M 1024M
 #BSUB -R rusage[mem=1024M]
 #BSUB -N
-#BSUB -B
 #BSUB -e /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_scheduler-%J.err
 #BSUB -o /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_scheduler-%J.out
 
