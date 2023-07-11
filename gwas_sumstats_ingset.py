@@ -6,10 +6,8 @@ import logging
 import re
 import sys
 
-import pyspark.sql.functions as f
-import pyspark.sql.types as t
 from pyspark.sql import SparkSession
-
+from otg.dataset.summary_statistics import SummaryStatistics
 
 def path_2_study_id(sumstats_location: str) -> str:
     """Extract GWAS Catalog study accession from sumstats file location.
@@ -39,58 +37,32 @@ def path_2_study_id(sumstats_location: str) -> str:
 def main(
     spark: SparkSession, input_file: str, output_file: str
 ) -> None:
-    """Main function to process summary statistics.
+    """Process summary statistics.
 
     Args:
         spark (SparkSession): Sparksession
         input_file (str): Input gzipped tsv
         output_file (str): Output parquet file
-        pval_threshold (float): upper limit for p-value
-
-    Returns:
-        None
     """
-
+    # Parse study accession:
     study_id = path_2_study_id(input_file)
     logging.warning(f"Processing study {study_id}")
+    # Read tsv as spark dataframe:
     ss_df = spark.read.csv(input_file, sep="\t", header=True)
     logging.warning(f"Read {ss_df.count()} rows from {input_file}")
 
-    # The effect allele frequency is an optional column, we have to test if it is there:
-    allele_frequency_expression = (
-        f.col("hm_effect_allele_frequency").cast(t.DoubleType())
-        if "hm_effect_allele_frequency" in ss_df.columns
-        else f.lit(None).cast(t.DoubleType())
+    # Converting dataframe into summary stat object:
+    (
+        SummaryStatistics
+        .from_gwas_harmonized_summary_stats(ss_df, study_id)
+        .df.write.mode('overwrite').parquet(output_file)
     )
-    logging.warning(f"Allele frequency expression, computed")
 
-    # Processing columns of interest:
-    processed_sumstats_df = ss_df.select(
-        # Adding study identifier:
-        f.lit(study_id).cast(t.StringType()).alias("studyId"),
-        # Adding variant identifier and other harmonized fields:
-        f.col('hm_rsid').cast(t.StringType()).alias('rsId'),
-        f.col('hm_variant_id').cast(t.StringType()).alias('variantId'),
-        f.col('hm_chrom').cast(t.StringType()).alias('chromosome'),
-        f.col('hm_pos').cast(t.IntegerType()).alias('position'),
-        f.col('hm_other_allele').alias('referenceAllele'),
-        f.col('hm_effect_allele').alias('alternateAllele'),
-        # Adding harmonized effect:
-        f.col('p_value').cast(t.StringType()).alias('pValue'),
-        f.col('hm_odds_ratio').cast(t.DoubleType()).alias('oddsRatio'),
-        f.col('hm_beta').cast(t.DoubleType()).alias('beta'),
-        f.col('hm_ci_lower').cast(t.DoubleType()).alias('confidenceIntervalLower'),
-        f.col('hm_ci_upper').cast(t.DoubleType()).alias('confidenceIntervalUpper'),
-        f.col("standard_error").cast(t.DoubleType()).alias('standardError'),
-        allele_frequency_expression.alias('alternateAlleleFrequency')
-    ).repartition(200, 'chromosome').sortWithinPartitions('position')
-
-    logging.warning(f"Writing summary statistics to {output_file}")
-    processed_sumstats_df.write.mode("overwrite").parquet(output_file)
+    logging.warning(f"Summary statistics parquet saved to: {output_file}")
 
 
 def parse_arguments() -> tuple:
-    """Parsing command line arguments.
+    """Parse command line arguments.
 
     Returns:
         tuple: list of arguments
