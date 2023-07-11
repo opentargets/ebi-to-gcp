@@ -1,1 +1,1 @@
-otg @ git+https://github.com/opentargets/genetics_etl_python@main
+otgenetics @ git+https://github.com/opentargets/genetics_etl_python@main
