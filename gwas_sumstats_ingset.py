@@ -287,7 +287,7 @@ def main(
     logging.warning(f"Read {ss_df.count()} rows from {input_file}")
 
     # Converting dataframe into summary stat object:
-    from_gwas_harmonized_summary_stats(ss_df, study_id).df.write.mode('overwrite').parquet(output_file)
+    from_gwas_harmonized_summary_stats(ss_df, study_id).write.mode('overwrite').parquet(output_file)
 
     logging.warning(f"Summary statistics parquet saved to: {output_file}")
 
