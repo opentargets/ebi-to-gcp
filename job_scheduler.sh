@@ -53,7 +53,8 @@ function setup_python_environment {
 print_environment
 activate_gcp_service_account
 setup_python_environment
-for study in $(cat ${path_file_harmonised_listing} | head -n 1000); do
+
+for study in $(cat ${path_file_harmonised_listing} | sort -R | head -n 5); do
     export path_study=$(readlink -f "${path_baseline_summary_statistics}/${study}")
     log "---> Launch processing job for study: '${path_study}'"
     #bsub -q datamover -J ot_gwas_sumstats_worker -W 1:00 -n 16 -M 32768M -R "rusage[mem=32768M]" -R "span[hosts=1]" ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
