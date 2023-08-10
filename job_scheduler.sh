@@ -6,7 +6,6 @@
 #BSUB -M 1024M
 #BSUB -R rusage[mem=1024M]
 #BSUB -N
-#BSUB -B
 #BSUB -e /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_scheduler-%J.err
 #BSUB -o /nfs/production/opentargets/lsf/logs/ot_gwas_sumstats_scheduler-%J.out
 
@@ -54,6 +53,7 @@ function setup_python_environment {
 print_environment
 activate_gcp_service_account
 setup_python_environment
+
 # for study in $(cat ${path_file_harmonised_listing} | sort -R | head -n 5); do
 for study in $(cat ${path_file_harmonised_listing}  | grep -w -f ~/unique_studies_in_production.csv  | head -n1); do
     export path_study=$(readlink -f "${path_baseline_summary_statistics}/${study}")
