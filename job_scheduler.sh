@@ -1,7 +1,7 @@
 #!/bin/bash
 # Job requirements
 #BSUB -J ot_gwas_sumstats_scheduler
-#BSUB -W 0:15
+#BSUB -W 0:40
 #BSUB -n 1
 #BSUB -M 1024M
 #BSUB -R rusage[mem=1024M]
@@ -54,7 +54,8 @@ function setup_python_environment {
 print_environment
 activate_gcp_service_account
 setup_python_environment
-for study in $(cat ${path_file_harmonised_listing} | sort -R | head -n 5); do
+# for study in $(cat ${path_file_harmonised_listing} | sort -R | head -n 5); do
+for study in $(cat ${path_file_harmonised_listing}  | grep -w -f ~/unique_studies_in_production.csv  | head -n1); do
     export path_study=$(readlink -f "${path_baseline_summary_statistics}/${study}")
     log "---> Launch processing job for study: '${path_study}'"
     #bsub -q datamover -J ot_gwas_sumstats_worker -W 1:00 -n 16 -M 32768M -R "rusage[mem=32768M]" -R "span[hosts=1]" ${SCRIPT_DIR}/process_gwas_study.sh ${path_study}
