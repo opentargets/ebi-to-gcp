@@ -9,10 +9,11 @@
 #SBATCH --nodes=1   # number of nodes
 #SBATCH -p datamover   # partition(s)
 #SBATCH --mem=32G   # memory per node
+#SBATCH --mail-type=all
 #SBATCH -J "gcp-uploader"   # job name
 #SBATCH -o "/nfs/production/opentargets/lsf/logs/ot_gwascat_gcp_rsync-%j.out"  # job output file
 #SBATCH -e "/nfs/production/opentargets/lsf/logs/ot_gwascat_gcp_rsync-%j.err"  # job error file
-target_path='gs://open-targets-gwas-summary-stats/raw-harmonised/'
+target_path='gs://gwas_catalog_data/raw_summary_statistics/'
 base_path=/nfs/ftp/public/databases/gwas/summary_statistics/
 gsutil_path=${HOME}/google-cloud-sdk/bin
 path_ops_baseline="/nfs/production/opentargets/ot-ops"
