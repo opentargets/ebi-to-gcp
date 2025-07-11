@@ -28,7 +28,7 @@ watch "tail /nfs/production/opentargets/lsf/logs/ot_gwascat_gcp_rsync-47150371.e
 
 ## Setting up cron jobs in slurm
 
-Documentation on how to setup a CRON job within the Slurm cluster can be found [here](https://embl.service-now.com/esc?id=kb_article&table=kb_knowledge&sysparm_article=KB0010982#mcetoc_1grgc1g622). 
+Documentation on how to setup a CRON job within the Slurm cluster can be found [here](https://embl.service-now.com/esc?id=kb_article&table=kb_knowledge&sysparm_article=KB0010982#mcetoc_1grgc1g622).
 
 For example, to setup a CRON job to run the `gwas_catalog_data_mover.sh` script every Monday at 7:30am, you can create a file `gwas_catalog_rsync_cron` with the following content:
 
@@ -39,3 +39,10 @@ For example, to setup a CRON job to run the `gwas_catalog_data_mover.sh` script 
 # min hour day-of-month month day-of-week command
 30 7 * * 1 sbatch /homes/ochoa/gwas-summary-stats/gwas_catalog_data_mover.sh
 ```
+
+## Approach
+
+The approach synchronizes the GWAS Catalog files including:
+
+- `/harmonised/GCSTXXXX.h.tsv.gz`
+- `
