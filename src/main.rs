@@ -35,25 +35,12 @@ fn main() {
         .map(|e| MetadataFile::new(e.path().to_path_buf()))
         .collect();
 
-    // Transform into a polars DataFrame
-    let metadata_files_df = metadata_files_to_dataframe(&metadata_files)
-        .lazy()
-        .with_column(
-            pl::col("path")
-                .str()
-                .split(pl::lit("/"))
-                .list()
-                .last()
-                .alias("ebiSummaryStatisticsFileName"),
-        )
-        .collect()
-        .expect("Failed to collect DataFrame");
-    println!("Metadata Files DataFrame:\n{:#?}", metadata_files_df);
-
     // Read all yaml files from the MetadataFile.paths as a dataframe and merge them
     let mut all_dataframes: Vec<DataFrame> = Vec::new();
     for metadata_file in &metadata_files {
-        let content: MetadataFileContent = MetadataFileContent::from(metadata_file.path.clone());
+        let mut content: MetadataFileContent =
+            MetadataFileContent::from(metadata_file.path.clone());
+        content.update_full_path(metadata_file.base_path.clone());
         let df: DataFrame = content.into();
         all_dataframes.push(df)
     }
@@ -64,35 +51,23 @@ fn main() {
         .reduce(|acc, df| acc.vstack(&df).expect("failed to vstack DataFrames"))
         .expect("No DataFrames to concatenate");
 
-    println!("YAML Metadata DataFrame:\n{:#?}", yaml_metadata_dfs);
     // Process the metadata DataFrame
-    let metadata_df = metadata_files_df
-        .join(
-            &yaml_metadata_dfs,
-            ["studyId", "ebiSummaryStatisticsFileName"],
-            ["gwasId", "dataFileName"],
-            JoinArgs::new(JoinType::Inner),
-            None,
-        )
-        .expect("Failed to join DataFrames")
+    let metadata_df = yaml_metadata_dfs
         .lazy()
         .select([
-            pl::col("studyId"),
-            pl::col("path").alias("ebiSummaryStatisticsPath"),
-            pl::col("dateMetadataLastModifiedFromOs").alias("ebiMetadataLastModified"),
+            pl::col("gwasId").alias("studyId"),
+            pl::col("dateMetadataLastModified")
+                .cast(DataType::Date)
+                .alias("ebiDateMetadataLastModified"),
             pl::col("dataFileMd5sum").alias("ebiSummaryStatisticsMd5sum"),
-            pl::col("dataFileName").alias("ebiSummaryStatisticsFileName"),
+            pl::col("dataFileName").alias("ebiSummaryStatisticsPath"),
             pl::col("isHarmonisedByEbi"),
-            pl::when(
-                pl::col("dateMetadataLastModifiedFromOs")
-                    .cast(DataType::Date)
-                    .over([pl::col("studyId")])
-                    .max()
-                    == pl::col("dateMetadataLastModifiedFromOs").cast(DataType::Date),
-            )
-            .then(pl::lit(true))
-            .otherwise(pl::lit(false))
-            .alias("isLatest"),
+            pl::col("dateMetadataLastModified")
+                .cast(DataType::Date)
+                .max()
+                .over([pl::col("gwasId")])
+                .eq(pl::col("dateMetadataLastModified").cast(DataType::Date))
+                .alias("isLatest"),
         ])
         .collect()
         .expect("Failed to collect DataFrame");
@@ -100,29 +75,7 @@ fn main() {
     println!("Joined Metadata DataFrame:\n{:#?}", metadata_df);
 }
 
-fn metadata_files_to_dataframe(metadata_files: &[MetadataFile]) -> DataFrame {
-    let paths: Vec<String> = metadata_files
-        .iter()
-        .map(|m| m.path.display().to_string())
-        .collect();
-    let datetimes: Vec<String> = metadata_files
-        .iter()
-        .map(|m| m.datetime.to_rfc3339())
-        .collect();
-    let study_ids: Vec<String> = metadata_files
-        .iter()
-        .map(|m| m.study_id.id.clone())
-        .collect();
-
-    DataFrame::new(vec![
-        Column::new("path".into(), paths),
-        Column::new("dateMetadataLastModifiedFromOs".into(), datetimes),
-        Column::new("studyId".into(), study_ids),
-    ])
-    .unwrap()
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct StudyId {
     pub id: String,
 }
@@ -141,11 +94,13 @@ impl From<PathBuf> for StudyId {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct MetadataFile {
     pub path: PathBuf,
     pub datetime: DateTime<Utc>,
     pub study_id: StudyId,
+    // Expect the yaml file to be in the same directory as the actual data file
+    pub base_path: PathBuf,
 }
 
 impl MetadataFile {
@@ -160,10 +115,15 @@ impl MetadataFile {
         let nsecs = duration.subsec_nanos();
         let datetime = DateTime::from_timestamp(secs, nsecs).expect("Invalid timestamp");
         let study_id = StudyId::from(path.clone());
+        let base_path = path
+            .parent()
+            .expect("Failed to get parent directory")
+            .to_path_buf();
         MetadataFile {
             path,
             datetime,
             study_id,
+            base_path,
         }
     }
 
@@ -189,6 +149,14 @@ impl From<PathBuf> for MetadataFileContent {
         // Read the yaml using serde_yaml
         let content = fs::read_to_string(&path).expect("Failed to read file");
         serde_yaml::from_str(&content).expect("Failed to parse YAML")
+    }
+}
+impl MetadataFileContent {
+    pub fn update_full_path(&mut self, mut base_path: PathBuf) {
+        if let Some(file_name) = &self.data_file_name {
+            base_path.push(file_name);
+            self.data_file_name = Some(base_path.to_string_lossy().to_string());
+        }
     }
 }
 
