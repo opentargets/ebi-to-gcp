@@ -1,6 +1,5 @@
 #![allow(clippy::from_over_into)]
 use chrono::{DateTime, Utc};
-// use deltalake::DeltaTable;
 use clap::Parser;
 use polars::lazy::dsl as pl;
 use polars::prelude::*;
@@ -16,10 +15,14 @@ struct Cli {
     /// Path to the dataset directory
     #[arg()]
     path: PathBuf,
+    table_path: PathBuf,
 }
-fn main() {
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let dataset_path = cli.path;
+    let table_path = cli.table_path;
 
     // Check if the dataset path exists
     if !dataset_path.exists() {
@@ -52,7 +55,7 @@ fn main() {
         .expect("No DataFrames to concatenate");
 
     // Process the metadata DataFrame
-    let metadata_df = yaml_metadata_dfs
+    let mut metadata_df = yaml_metadata_dfs
         .lazy()
         .select([
             pl::col("gwasId").alias("studyId"),
@@ -73,6 +76,17 @@ fn main() {
         .expect("Failed to collect DataFrame");
 
     println!("Joined Metadata DataFrame:\n{:#?}", metadata_df);
+    println!(
+        "Joined Metadata DataFrame Schema:\n{:#?}",
+        metadata_df.schema()
+    );
+
+    let mut file = std::fs::File::create(&table_path).expect("Failed to create file");
+    _ = ParquetWriter::new(&mut file)
+        .finish(&mut metadata_df)
+        .expect("Failed to write DataFrame to Parquet");
+
+    Ok(())
 }
 
 #[derive(Debug)]

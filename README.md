@@ -11,6 +11,11 @@ This repository contains the code to transfer data from EBI LSF to GCP.
 
 1. Clone the repository in the EBI cluster
 2. Download the `gcloud` SDK in the EBI cluster. You can find the instructions [here](https://cloud.google.com/sdk/docs/install#linux)
+3. if ebi_to_gcp binary is not compiled, run (rustc and cargo must be installed)
+
+```bash
+make compile
+```
 
 ## Usage
 
@@ -40,9 +45,19 @@ For example, to setup a CRON job to run the `gwas_catalog_data_mover.sh` script 
 30 7 * * 1 sbatch /homes/ochoa/gwas-summary-stats/gwas_catalog_data_mover.sh
 ```
 
-## Approach
+## Syncing
 
-The approach synchronizes the GWAS Catalog files including:
+The sync includes:
 
-- `/harmonised/GCSTXXXX.h.tsv.gz`
-- `
+- harmonised summary statistics files (`h.tsv.gz`)
+- metadata files (`h.tsv.gz.meta.yaml`)
+
+## yaml dump
+
+The script also creates a YAML metadata dump (parquet file) with the following structure:
+
+---
+
+| studyId | ebiDateMetadataLastModified | ebiSummaryStatisticsMd5sum | ebiSummaryStatisticsPath | isHarmonisedByEbi | isLatest |
+| ------- | --------------------------- | -------------------------- | ------------------------ | ----------------- | -------- |
+| GCSTXXX | 2025-02-07                  | fasfasffasfsdfasafasf      | some_path/h.tsv.gz       | true              | true     |
