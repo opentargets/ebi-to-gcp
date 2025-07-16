@@ -51,6 +51,7 @@ The sync includes:
 
 - harmonised summary statistics files (`h.tsv.gz`)
 - metadata files (`h.tsv.gz.meta.yaml`)
+- list of all metadata files (`metadata_files_list.<date>.txt`)
 
 ## yaml dump
 

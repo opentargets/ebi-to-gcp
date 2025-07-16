@@ -75,12 +75,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .collect()
         .expect("Failed to collect DataFrame");
 
-    println!("Joined Metadata DataFrame:\n{:#?}", metadata_df);
-    println!(
-        "Joined Metadata DataFrame Schema:\n{:#?}",
-        metadata_df.schema()
-    );
-
     let mut file = std::fs::File::create(&table_path).expect("Failed to create file");
     _ = ParquetWriter::new(&mut file)
         .finish(&mut metadata_df)
