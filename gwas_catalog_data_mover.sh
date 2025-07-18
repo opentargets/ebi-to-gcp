@@ -61,5 +61,5 @@ ebi_to_gcp_path=./ebi-to-gcp
 ${ebi_to_gcp_path} $base_path $target_local_yaml_dump_path
 
 # Sync the yaml dump file
-${gsuitl_path}/gsutil -u open-targets-genetics-dev cp ${target_local_yaml_dump_path} ${target_remove_yaml_dump_path}
+${gsutil_path}/gsutil -u open-targets-genetics-dev cp ${target_local_yaml_dump_path} ${target_remove_yaml_dump_path}
 
