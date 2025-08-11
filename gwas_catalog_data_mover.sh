@@ -19,7 +19,6 @@ gcs_bucket="gwas_catalog_inputs"
 
 ############################################ SYNC SUMMARY STATISTICS AND METADATA TO GCP ############################################
 
-set -e # Exit on error
 
 # Sync paths
 target_path="gs://${gcs_bucket}/raw_summary_statistics/"
@@ -42,13 +41,10 @@ ${gsutil_path}/gcloud auth activate-service-account --key-file=${path_ops_gcp_se
 ${gsutil_path}/gsutil -u open-targets-genetics-dev -m rsync -r -d -x '^(?!.*\.h\.tsv\.gz(.meta.yaml)?$)' ${base_path} ${target_path}
 
 # Sync list of all metadata files
-find ${base_path} -type f -name "*.h.tsv.gz.meta.yaml" >$base_metadata_list_path
+find ${base_path} -type f -name "*.h.tsv.gz.meta.yaml" > $base_metadata_list_path  2> >(grep -v 'Permission denied$' >&2)
 ${gsutil_path}/gsutil -u open-targets-genetics-dev cp ${base_metadata_list_path} ${target_metadata_list_path}
 
 ############################################ READ METADATA AND COLLECT TO PARQUET FILE ############################################
-
-# On error continue - do not prevent the job from failing if the ebi_to_gcp command fails
-set +e
 
 # Sync paths
 target_local_yaml_dump_path="sync_dump_$(date -I).parquet"
