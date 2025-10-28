@@ -19,7 +19,6 @@ gcs_bucket="gwas_catalog_inputs"
 
 ############################################ SYNC SUMMARY STATISTICS AND METADATA TO GCP ############################################
 
-
 # Sync paths
 target_path="gs://${gcs_bucket}/raw_summary_statistics/"
 base_path=/nfs/ftp/public/databases/gwas/summary_statistics/
@@ -40,22 +39,18 @@ ${gsutil_path}/gcloud auth activate-service-account --key-file=${path_ops_gcp_se
 # Sync all h.tsv.gz and h.tsv.gz.meta.yaml files
 ${gsutil_path}/gsutil -u open-targets-genetics-dev -m rsync -r -d -x '^(?!.*\.h\.tsv\.gz(.meta.yaml)?$)' ${base_path} ${target_path}
 
-# Sync list of all metadata files
-find ${base_path} -type f -name "*.h.tsv.gz.meta.yaml" > $base_metadata_list_path  2> >(grep -v 'Permission denied$' >&2)
-${gsutil_path}/gsutil -u open-targets-genetics-dev cp ${base_metadata_list_path} ${target_metadata_list_path}
 
 ############################################ READ METADATA AND COLLECT TO PARQUET FILE ############################################
 
 # Sync paths
-target_local_yaml_dump_path="sync_dump_$(date -I).parquet"
+target_local_yaml_dump_path="${HOME}/sync_dump_$(date -I).parquet"
 target_remove_yaml_dump_path="gs://${gcs_bucket}/sync_dump/${target_local_yaml_dump_path}"
 
 # Software paths
-ebi_to_gcp_path=./ebi-to-gcp
+ebi_to_gcp_path=${HOME}/ebi-to-gcp/ebi-to-gcp
 
 # Read and collect all yaml files
-${ebi_to_gcp_path} $base_path $target_local_yaml_dump_path
+${ebi_to_gcp_path} $base_path $target_local_yaml_dump_path --n-threads 100
 
 # Sync the yaml dump file
 ${gsutil_path}/gsutil -u open-targets-genetics-dev cp ${target_local_yaml_dump_path} ${target_remove_yaml_dump_path}
-

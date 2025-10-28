@@ -62,3 +62,25 @@ The script also creates a YAML metadata dump (parquet file) with the following s
 | studyId | ebiDateMetadataLastModified | ebiSummaryStatisticsMd5sum | ebiSummaryStatisticsPath | isHarmonisedByEbi | isLatest |
 | ------- | --------------------------- | -------------------------- | ------------------------ | ----------------- | -------- |
 | GCSTXXX | 2025-02-07                  | fasfasffasfsdfasafasf      | some_path/h.tsv.gz       | true              | true     |
+
+## Testing ebi-to-gcp with 1000 YAML Files
+
+This document describes the comprehensive test suite created to verify that the `ebi-to-gcp` application works correctly when processing 1000 YAML metadata files.
+
+###  1000 YAML Files (`test_main_with_1000_yaml_files`)
+
+- **Purpose**: Verifies the application can handle exactly 1000 YAML files
+- **Creates**: 1000 mock YAML metadata files with realistic structure
+- **Tests**: Complete end-to-end processing pipeline
+- **Measures**: Performance metrics including processing time and throughput
+- **Validates**: Output Parquet file creation and non-empty content
+
+
+## How to Run the Tests
+
+### Option 1: Run Individual Tests
+
+```bash
+# Test with 1000 YAML files
+cargo test test_main_with_1000_yaml_files --release -- --nocapture
+```
