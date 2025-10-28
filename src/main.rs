@@ -1,58 +1,84 @@
-#![allow(clippy::from_over_into)]
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use clap::Parser;
+use ebi_to_gcp::cli::Cli;
+use ebi_to_gcp::parallel::process_yaml_files_async;
+use ebi_to_gcp::read::MetadataFile;
+use log::{error, info};
 use polars::lazy::dsl as pl;
 use polars::prelude::*;
-use regex::Regex;
-use serde::{Deserialize, Serialize};
-use std::fs;
-use std::{path::PathBuf, process::exit};
+use std::process::exit;
 use walkdir::WalkDir;
-
-#[derive(Parser, Debug)]
-#[command(author, version, about)]
-struct Cli {
-    /// Path to the dataset directory
-    #[arg()]
-    path: PathBuf,
-    table_path: PathBuf,
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
-    let dataset_path = cli.path;
-    let table_path = cli.table_path;
 
     // Check if the dataset path exists
-    if !dataset_path.exists() {
-        eprintln!("Dataset path does not exist: {}", dataset_path.display());
+    if !(cli.dataset_path).exists() {
+        error!(
+            "Dataset path does not exist: {}",
+            &cli.dataset_path.display()
+        );
         exit(1);
     }
+    info!(
+        "Processing dataset at path: {}",
+        &cli.dataset_path.display()
+    );
 
+    // Check if the output path exists
+    if (cli.output_path).exists() {
+        error!("Output path already exists: {}", &cli.output_path.display());
+        exit(1);
+    }
+    info!(
+        "Output will be written to path: {}",
+        &cli.output_path.display()
+    );
+
+    info!("Searching for metadata files...");
+    let start_time = Utc::now();
     // Extract the meta.yaml files and their metadata
-    let metadata_files: Vec<MetadataFile> = WalkDir::new(dataset_path)
+    let metadata_files: Vec<MetadataFile> = WalkDir::new(&cli.dataset_path)
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.path().to_string_lossy().ends_with("h.tsv.gz-meta.yaml"))
         .map(|e| MetadataFile::new(e.path().to_path_buf()))
         .collect();
+    let end_time = Utc::now();
+    let duration = end_time - start_time;
+    info!("Found {} metadata files.", metadata_files.len());
+    info!(
+        "Time taken to search for metadata files: {} seconds",
+        duration.num_seconds()
+    );
+
+    let start_time = Utc::now();
+    info!("Generating sync table...");
 
     // Read all yaml files from the MetadataFile.paths as a dataframe and merge them
-    let mut all_dataframes: Vec<DataFrame> = Vec::new();
-    for metadata_file in &metadata_files {
-        let mut content: MetadataFileContent =
-            MetadataFileContent::from(metadata_file.path.clone());
-        content.update_full_path(metadata_file.base_path.clone());
-        let df: DataFrame = content.into();
-        all_dataframes.push(df)
-    }
+    let progress_counter = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    // Concatenate all yaml DataFrames into one - n threads
+    let yaml_metadata_dfs =
+        process_yaml_files_async(metadata_files.as_slice(), progress_counter, cli.n_threads)
+            .await
+            .expect("Failed to process YAML files")
+            .into_iter()
+            .reduce(|acc, df| acc.vstack(&df).expect("failed to vstack DataFrames"))
+            .expect("No DataFrames to concatenate");
+    let end_time = Utc::now();
+    let duration = end_time - start_time;
+    info!(
+        "Time taken to generate sync table: {} seconds",
+        duration.num_seconds()
+    );
 
-    // Concatenate all yaml DataFrames into one
-    let yaml_metadata_dfs = all_dataframes
-        .into_iter()
-        .reduce(|acc, df| acc.vstack(&df).expect("failed to vstack DataFrames"))
-        .expect("No DataFrames to concatenate");
+    info!(
+        "Transforming and writing sync table to Parquet under {}",
+        &cli.output_path.display()
+    );
+    let mut file = std::fs::File::create(&cli.output_path).expect("Failed to create file");
+    let start_time = Utc::now();
 
     // Process the metadata DataFrame
     let mut metadata_df = yaml_metadata_dfs
@@ -75,111 +101,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .collect()
         .expect("Failed to collect DataFrame");
 
-    let mut file = std::fs::File::create(&table_path).expect("Failed to create file");
     _ = ParquetWriter::new(&mut file)
         .finish(&mut metadata_df)
         .expect("Failed to write DataFrame to Parquet");
-
+    let end_time = Utc::now();
+    let duration = end_time - start_time;
+    info!(
+        "Time taken to write sync table: {} seconds",
+        duration.num_seconds()
+    );
+    info!("Sync table generation complete.");
     Ok(())
-}
-
-#[derive(Debug)]
-pub struct StudyId {
-    pub id: String,
-}
-
-impl From<PathBuf> for StudyId {
-    fn from(path: PathBuf) -> Self {
-        let pattern = Regex::new(r".*(GCST\d+).*").unwrap();
-        let path_str = path.to_string_lossy();
-        let id = pattern
-            .captures(&path_str)
-            .and_then(|caps| caps.get(1))
-            .map(|m| m.as_str())
-            .unwrap_or_default()
-            .to_string();
-        StudyId { id }
-    }
-}
-
-#[derive(Debug)]
-pub struct MetadataFile {
-    pub path: PathBuf,
-    pub datetime: DateTime<Utc>,
-    pub study_id: StudyId,
-    // Expect the yaml file to be in the same directory as the actual data file
-    pub base_path: PathBuf,
-}
-
-impl MetadataFile {
-    fn new(path: PathBuf) -> Self {
-        let metadata = fs::metadata(&path).expect("Failed to read metadata");
-        let duration = metadata
-            .modified()
-            .expect("Failed to get modification time")
-            .duration_since(std::time::UNIX_EPOCH)
-            .expect("Time went backwards");
-        let secs = duration.as_secs() as i64;
-        let nsecs = duration.subsec_nanos();
-        let datetime = DateTime::from_timestamp(secs, nsecs).expect("Invalid timestamp");
-        let study_id = StudyId::from(path.clone());
-        let base_path = path
-            .parent()
-            .expect("Failed to get parent directory")
-            .to_path_buf();
-        MetadataFile {
-            path,
-            datetime,
-            study_id,
-            base_path,
-        }
-    }
-
-    pub fn path(&self) -> &PathBuf {
-        &self.path
-    }
-    pub fn datetime(&self) -> DateTime<Utc> {
-        self.datetime
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct MetadataFileContent {
-    gwas_id: Option<String>,
-    data_file_md5sum: Option<String>,
-    data_file_name: Option<String>,
-    date_metadata_last_modified: Option<String>,
-    is_harmonised: Option<bool>,
-}
-
-impl From<PathBuf> for MetadataFileContent {
-    fn from(path: PathBuf) -> Self {
-        // Read the yaml using serde_yaml
-        let content = fs::read_to_string(&path).expect("Failed to read file");
-        serde_yaml::from_str(&content).expect("Failed to parse YAML")
-    }
-}
-impl MetadataFileContent {
-    pub fn update_full_path(&mut self, mut base_path: PathBuf) {
-        if let Some(file_name) = &self.data_file_name {
-            base_path.push(file_name);
-            self.data_file_name = Some(base_path.to_string_lossy().to_string());
-        }
-    }
-}
-
-impl Into<DataFrame> for MetadataFileContent {
-    fn into(self) -> DataFrame {
-        DataFrame::new(vec![
-            Column::new("gwasId".into(), vec![self.gwas_id]),
-            Column::new("dataFileMd5sum".into(), vec![self.data_file_md5sum]),
-            Column::new("dataFileName".into(), vec![self.data_file_name]),
-            Column::new(
-                "dateMetadataLastModified".into(),
-                vec![self.date_metadata_last_modified],
-            ),
-            Column::new("isHarmonisedByEbi".into(), vec![self.is_harmonised]),
-        ])
-        .expect("Failed to create DataFrame")
-    }
 }
