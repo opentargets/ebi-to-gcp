@@ -43,14 +43,18 @@ ${gsutil_path}/gsutil -u open-targets-genetics-dev -m rsync -r -d -x '^(?!.*\.h\
 ############################################ READ METADATA AND COLLECT TO PARQUET FILE ############################################
 
 # Sync paths
-target_local_yaml_dump_path="${HOME}/sync_dump_$(date -I).parquet"
-target_remove_yaml_dump_path="gs://${gcs_bucket}/sync_dump/${target_local_yaml_dump_path}"
+datetime_now="$(date -I)"
+target_local_filename="sync_dump_${datetime_now}.parquet"
+target_local_yaml_dump_path="${HOME}/${target_local_filename}"
+target_remote_yaml_dump_path="gs://${gcs_bucket}/sync_dump/${datetime_now}/${target_local_filename}"
+target_remote_yaml_latest_dump_path="gs://${gcs_bucket}/sync_dump/latest/sync_dump_latest.parquet"
 
 # Software paths
 ebi_to_gcp_path=${HOME}/ebi-to-gcp/ebi-to-gcp
 
 # Read and collect all yaml files
-${ebi_to_gcp_path} $base_path $target_local_yaml_dump_path --n-threads 100
+${ebi_to_gcp_path} $base_path $target_local_yaml_dump_path --n-threads 150
 
 # Sync the yaml dump file
-${gsutil_path}/gsutil -u open-targets-genetics-dev cp ${target_local_yaml_dump_path} ${target_remove_yaml_dump_path}
+${gsutil_path}/gsutil -u open-targets-genetics-dev cp ${target_local_yaml_dump_path} ${target_remote_yaml_dump_path}
+${gsutil_path}/gsutil -u open-targets-genetics-dev cp ${target_local_yaml_dump_path} ${target_remote_yaml_latest_dump_path}
