@@ -3,6 +3,7 @@ use clap::Parser;
 use ebi_to_gcp::cli::Cli;
 use ebi_to_gcp::parallel::process_yaml_files_async;
 use ebi_to_gcp::read::MetadataFile;
+use env_logger::{Builder, Target};
 use log::{error, info};
 use polars::lazy::dsl as pl;
 use polars::prelude::*;
@@ -11,6 +12,9 @@ use walkdir::WalkDir;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // log to stdout, by defauult it is stderr!
+    Builder::new().target(Target::Stdout).init();
+    info!("Starting EBI to GCP sync table generator...");
     let cli = Cli::parse();
 
     // Check if the dataset path exists
