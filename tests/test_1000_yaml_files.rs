@@ -100,7 +100,7 @@ async fn test_main_with_1000_yaml_files() {
         .arg(output_path.to_str().unwrap())
         .arg("--n-threads")
         .arg("50") // Use 50 threads for faster processing
-        .current_dir("/Users/ss60/Projects/ebi-to-gcp")
+        .current_dir(&current_dir)
         .output()
         .await
         .expect("Failed to execute ebi-to-gcp");
