@@ -4,7 +4,7 @@ use tempfile::TempDir;
 use tokio::process::Command;
 use uuid::Uuid;
 
-// NOTE: Tests were build using LLM assistance.
+// NOTE: Tests were built using LLM assistance.
 
 // Helper function to create a mock YAML file with realistic content
 fn create_mock_yaml_content(gwas_id: &str, harmonised: bool) -> String {
