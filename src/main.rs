@@ -12,7 +12,7 @@ use walkdir::WalkDir;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // log to stdout, by defauult it is stderr!
+    // log to stdout, by default it is stderr!
     Builder::new().target(Target::Stdout).init();
     info!("Starting EBI to GCP sync table generator...");
     let cli = Cli::parse();
