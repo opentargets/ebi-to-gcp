@@ -13,7 +13,7 @@
 #SBATCH -J "eqtl-catalogue-gcp-uploader"   # job name
 #SBATCH -o "/nfs/production/opentargets/lsf/logs/ot_eqtl_gcp_rsync-%j.out"  # job output file
 #SBATCH -e "/nfs/production/opentargets/lsf/logs/ot_eqtl_gcp_rsync-%j.err"  # job error file
-target_path='gs://eqtl_catalog_data/ebi_ftp/susie'
+target_path='gs://eqtl_catalogue_data/ebi_ftp/susie'
 base_path=/nfs/ftp/public/databases/spot/eQTL/susie/
 gsutil_path=${HOME}/google-cloud-sdk/bin
 path_ops_baseline="/nfs/production/opentargets/ot-ops"
@@ -24,3 +24,4 @@ path_ops_gcp_service_account="${path_ops_credentials}/gcp-service-account-gwas-s
 ${gsutil_path}/gcloud auth activate-service-account --key-file=${path_ops_gcp_service_account}
 
 ${gsutil_path}/gsutil -m rsync -r -d ${base_path} ${target_path}
+
